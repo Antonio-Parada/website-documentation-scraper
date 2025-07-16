@@ -432,23 +432,88 @@ class WebsiteDocumentationScraper:
         print(f"📚 Generated index.md")
 
 def main():
-    """Main function for testing"""
-    # Example usage
-    scraper = WebsiteDocumentationScraper(
-        base_url="https://scrapegraph-ai.readthedocs.io",
-        output_dir="scrapegraph_docs",
-        max_depth=2,
-        delay=1.5,
-        max_pages=20
+    """Main function with CLI argument parsing"""
+    import argparse
+    
+    parser = argparse.ArgumentParser(
+        description='Website Documentation Scraper with Gemini 2.5 Flash',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''
+Examples:
+  python website_doc_scraper.py https://example.com
+  python website_doc_scraper.py https://example.com --depth 3 --pages 50
+  python website_doc_scraper.py https://example.com --output my_docs --delay 1.0
+  python website_doc_scraper.py https://example.com --no-resume
+'''
     )
     
-    summary = scraper.crawl_website(resume=True)
-    scraper.generate_index()
+    parser.add_argument('url', help='Website URL to scrape')
+    parser.add_argument('--depth', '-d', type=int, default=3, 
+                      help='Maximum crawl depth (default: 3)')
+    parser.add_argument('--pages', '-p', type=int, default=100,
+                      help='Maximum number of pages to process (default: 100)')
+    parser.add_argument('--output', '-o', default='docs',
+                      help='Output directory for markdown files (default: docs)')
+    parser.add_argument('--delay', type=float, default=2.0,
+                      help='Delay between requests in seconds (default: 2.0)')
+    parser.add_argument('--no-resume', action='store_true',
+                      help='Do not resume from previous crawl state')
+    parser.add_argument('--verbose', '-v', action='store_true',
+                      help='Enable verbose output')
     
-    print("\n✨ Crawl Summary:")
-    print("=" * 40)
-    for key, value in summary.items():
-        print(f"  {key.replace('_', ' ').title()}: {value}")
+    args = parser.parse_args()
+    
+    # Validate URL
+    if not args.url.startswith(('http://', 'https://')):
+        args.url = 'https://' + args.url
+    
+    # Check API key
+    if "GOOGLE_APIKEY" not in os.environ:
+        print("❌ Error: GOOGLE_APIKEY environment variable is not set")
+        print("Please set your Gemini API key first:")
+        print("  Windows: $env:GOOGLE_APIKEY = 'your_api_key'")
+        print("  Unix:    export GOOGLE_APIKEY='your_api_key'")
+        return
+    
+    print("🚀 Website Documentation Scraper")
+    print("=" * 50)
+    print(f"🌐 URL: {args.url}")
+    print(f"📁 Output: {args.output}")
+    print(f"🔢 Max Depth: {args.depth}")
+    print(f"📄 Max Pages: {args.pages}")
+    print(f"⏱️  Delay: {args.delay}s")
+    print(f"🔄 Resume: {not args.no_resume}")
+    print()
+    
+    try:
+        # Initialize scraper
+        scraper = WebsiteDocumentationScraper(
+            base_url=args.url,
+            output_dir=args.output,
+            max_depth=args.depth,
+            delay=args.delay,
+            max_pages=args.pages
+        )
+        
+        # Run scraper
+        summary = scraper.crawl_website(resume=not args.no_resume)
+        scraper.generate_index()
+        
+        print("\n✨ Crawl Summary:")
+        print("=" * 40)
+        for key, value in summary.items():
+            print(f"  {key.replace('_', ' ').title()}: {value}")
+        
+        print(f"\n📁 Documentation saved to: {args.output}")
+        print(f"📚 Check index.md for navigation")
+        
+    except KeyboardInterrupt:
+        print("\n⏹️  Scraping interrupted by user")
+    except Exception as e:
+        print(f"\n❌ Error: {e}")
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
 
 if __name__ == "__main__":
     main()
