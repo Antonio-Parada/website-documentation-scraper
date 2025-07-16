@@ -33,6 +33,11 @@ class SmartScraper:
         print("🚀 Smart Scraper - LLM-Guided Website Documentation")
         print("=" * 60)
         
+# Pre-step: Perform BeautifulSoup pre-analysis
+        pre_analysis = self.llm_guide.pre_analyze_with_beautifulsoup(url)
+        if pre_analysis:
+            print("Pre-analysis data:", pre_analysis)
+
         # Step 1: Get LLM analysis and configuration
         if interactive:
             config = self.llm_guide.interactive_configuration(url)

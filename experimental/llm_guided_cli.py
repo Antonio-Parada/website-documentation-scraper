@@ -19,6 +19,9 @@ from datetime import datetime
 sys.path.append(str(Path(__file__).parent.parent))
 
 from scrapegraphai.graphs import SmartScraperGraph
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
 
 class LLMGuidedScraper:
     """LLM-guided scraper configuration system"""
@@ -42,6 +45,123 @@ class LLMGuidedScraper:
             "user_preferences": {},
             "configuration_history": []
         }
+    
+    def pre_analyze_with_beautifulsoup(self, url: str) -> Dict:
+        """Perform initial analysis using BeautifulSoup before LLM processing"""
+        try:
+            print("🔍 Performing initial page analysis...")
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Extract basic information
+            title = soup.find('title')
+            title_text = title.get_text().strip() if title else "No title"
+            
+            # Count various elements
+            links = soup.find_all('a', href=True)
+            headings = soup.find_all(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
+            images = soup.find_all('img')
+            forms = soup.find_all('form')
+            tables = soup.find_all('table')
+            code_blocks = soup.find_all(['pre', 'code'])
+            
+            # Extract meta description
+            meta_desc = soup.find('meta', attrs={'name': 'description'})
+            description = meta_desc.get('content', '') if meta_desc else ''
+            
+            # Analyze link patterns
+            internal_links = []
+            external_links = []
+            
+            for link in links:
+                href = link.get('href', '')
+                if href.startswith('http'):
+                    if urlparse(url).netloc in href:
+                        internal_links.append(href)
+                    else:
+                        external_links.append(href)
+                elif href.startswith('/'):
+                    internal_links.append(urljoin(url, href))
+            
+            # Identify common patterns
+            nav_elements = soup.find_all(['nav', 'navigation']) or soup.find_all(class_=lambda x: x and 'nav' in x.lower())
+            main_content = soup.find('main') or soup.find('article') or soup.find(id='content')
+            
+            analysis = {
+                'title': title_text,
+                'description': description,
+                'link_count': len(links),
+                'internal_links': len(internal_links),
+                'external_links': len(external_links),
+                'heading_count': len(headings),
+                'image_count': len(images),
+                'form_count': len(forms),
+                'table_count': len(tables),
+                'code_block_count': len(code_blocks),
+                'has_navigation': len(nav_elements) > 0,
+                'has_main_content': main_content is not None,
+                'estimated_complexity': self._calculate_complexity(soup),
+                'likely_site_type': self._infer_site_type(soup, url),
+                'sample_links': internal_links[:10]  # First 10 internal links
+            }
+            
+            print(f"📊 Initial analysis complete:")
+            print(f"   📝 Title: {title_text}")
+            print(f"   🔗 Links: {len(links)} ({len(internal_links)} internal)")
+            print(f"   📖 Headings: {len(headings)}")
+            print(f"   🎯 Site Type: {analysis['likely_site_type']}")
+            
+            return analysis
+            
+        except Exception as e:
+            print(f"⚠️  Pre-analysis failed: {e}")
+            return {}
+    
+    def _calculate_complexity(self, soup: BeautifulSoup) -> str:
+        """Calculate website complexity based on structure"""
+        # Count structural elements
+        nav_count = len(soup.find_all(['nav']) + soup.find_all(class_=lambda x: x and 'nav' in x.lower()))
+        section_count = len(soup.find_all(['section', 'article', 'aside']))
+        list_count = len(soup.find_all(['ul', 'ol']))
+        
+        complexity_score = nav_count * 2 + section_count + list_count * 0.5
+        
+        if complexity_score > 20:
+            return "complex"
+        elif complexity_score > 10:
+            return "moderate"
+        else:
+            return "simple"
+    
+    def _infer_site_type(self, soup: BeautifulSoup, url: str) -> str:
+        """Infer likely site type based on content and URL"""
+        # Check URL patterns
+        if 'github.com' in url:
+            return "github"
+        if 'docs.' in url or '/docs/' in url:
+            return "documentation"
+        if 'api.' in url or '/api/' in url:
+            return "api"
+        if 'blog' in url or '/blog/' in url:
+            return "blog"
+        if 'wiki' in url or '/wiki/' in url:
+            return "wiki"
+        
+        # Check content patterns
+        text_content = soup.get_text().lower()
+        
+        if 'api' in text_content and 'endpoint' in text_content:
+            return "api"
+        if 'documentation' in text_content or 'guide' in text_content:
+            return "documentation"
+        if 'blog' in text_content or 'post' in text_content:
+            return "blog"
+        if soup.find_all('form') and 'login' in text_content:
+            return "corporate"
+        
+        return "other"
     
     def analyze_website_structure(self, url: str) -> Dict:
         """Use Gemini to analyze website structure and suggest optimal scraping configuration"""
@@ -400,6 +520,10 @@ def main():
     
     parser = argparse.ArgumentParser(description="LLM-Guided Website Documentation Scraper")
     parser.add_argument("url", help="Website URL to analyze and scrape")
+    parser.add_argument("--depth", type=int, help="Specify max depth")
+    parser.add_argument("--pages", type=int, help="Specify max pages")
+    parser.add_argument("--delay", type=float, help="Specify delay between requests")
+    parser.add_argument("--output", help="Specify output directory")
     parser.add_argument("--load-session", help="Load previous session file")
     parser.add_argument("--save-session", help="Save session to file")
     parser.add_argument("--non-interactive", action="store_true", help="Use LLM recommendations without user input")
@@ -418,17 +542,26 @@ def main():
     if args.load_session:
         guided_scraper.load_session(args.load_session)
     
+    # Set default output directory if not provided
+    output_dir = args.output if args.output else "docs"
+    
     try:
         if args.non_interactive:
             # Non-interactive mode - use LLM recommendations directly
             print("🤖 Non-interactive mode: Using LLM recommendations")
             analysis = guided_scraper.analyze_website_structure(args.url)
-            config = guided_scraper.translate_to_scraper_config(analysis)
+            config = guided_scraper.translate_to_scraper_config(analysis, {
+                'max_depth': args.depth,
+                'max_pages': args.pages,
+                'delay': args.delay,
+                'output_dir': output_dir
+            })
             guided_scraper.display_final_config(config)
         else:
             # Interactive mode
             config = guided_scraper.interactive_configuration(args.url)
-        
+            config['output_dir'] = output_dir
+
         # Save session if specified
         if args.save_session:
             guided_scraper.save_session(args.save_session)
