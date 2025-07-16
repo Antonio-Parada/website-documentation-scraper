@@ -201,15 +201,26 @@ The system handles various error conditions:
 
 ## 🧪 Testing
 
-Run the test suite:
-```bash
-python test_scraper.py
-```
+The project includes comprehensive test scripts:
 
-For GitHub crawler testing:
 ```bash
+# Basic functionality test
+python test_scraper.py
+
+# GitHub repository scraping test
+python test_github_scraper.py
+
+# HTTPBin API documentation test
+python test_httpbin.py
+
+# Batch testing multiple sites
+python test_multiple_sites.py
+
+# GitHub crawler testing
 python test_batch_crawler.py
 ```
+
+**Note:** Test outputs are saved to separate directories and are not tracked in version control. This allows you to test the scraper without cluttering the repository.
 
 ## 📈 Performance
 
