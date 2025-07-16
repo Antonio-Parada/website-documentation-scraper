@@ -1,260 +1,255 @@
-# Website Documentation Scraper System
+# Website Documentation Scraper
 
-A comprehensive solution for converting entire websites into structured markdown documentation using Google's Gemini 2.5 Flash model.
+e **🚀 Now Available as Web Application!**  
+e Deploy to: `scrape.mypp.site` with Firebase hosting and custom domain support
 
-## 🎯 Features
+An intelligent web scraper that automatically extracts and formats website documentation using AI-powered analysis. The system uses Google's Gemini LLM to analyze website structure and optimize scraping parameters for maximum efficiency.
 
-- **Complete Website Crawling** - Discovers and processes all pages on a website
-- **AI-Powered Content Extraction** - Uses Gemini 2.5 Flash to intelligently extract content
-- **Markdown Generation** - Converts content to clean, structured markdown files
-- **Smart State Management** - Resume interrupted crawls automatically
-- **GUI Interface** - User-friendly desktop application
-- **REST API Backend** - Server-based processing with web interface
-- **Progress Tracking** - Real-time monitoring of scraping progress
-- **Error Handling** - Graceful failure handling and recovery
-- **Cross-Platform** - Works on Windows, macOS, and Linux
+## 🌟 Features
 
-## 📦 Components
+### 🤖 **AI-Powered Intelligence**
+- **LLM-Guided Analysis**: Gemini 2.5 Flash analyzes website structure and recommends optimal scraping parameters
+- **BeautifulSoup Pre-Analysis**: Initial page structure assessment before LLM processing
+- **Adaptive Configuration**: Dynamic parameter adjustment based on site complexity and type
+- **Performance Optimization**: Smart delay and depth recommendations for respectful crawling
 
-### 1. Core Scraper (`website_doc_scraper.py`)
-The main scraping engine that handles:
-- Website discovery and link crawling
-- Content extraction using Gemini 2.5 Flash
-- Markdown file generation
-- State persistence and recovery
+### 🎯 **Web Application (NEW!)**
+- **Modern React Frontend**: Intuitive web interface replacing CLI
+- **Real-time Progress Tracking**: Live updates during scraping operations
+- **Job Management**: Background processing with status monitoring
+- **Results Dashboard**: Browse, preview, and download scraped documentation
+- **Custom Domain Support**: Deploy to `scrape.mypp.site`
 
-### 2. GUI Application (`scraper_gui.py`)
-Desktop application with:
-- Easy-to-use interface
-- Real-time progress monitoring
-- Configurable settings
-- Output folder management
+### 📚 **Documentation Processing**
+- **Intelligent Content Extraction**: Focuses on main documentation content
+- **Multiple Format Support**: Markdown, HTML, and custom formats
+- **Quality Scoring**: Automatic content quality assessment
+- **Structured Output**: Organized file hierarchy with index generation
+- **Resume Capability**: Continue interrupted scraping sessions
 
-### 3. Backend Server (`scraper_backend.py`)
-REST API server providing:
-- Job management endpoints
-- Web-based interface
-- File serving and downloads
-- Multi-job processing
+## 🏗️ Architecture
 
-### 4. GitHub Repository Crawler (`complete_github_crawler.py`)
-Specialized crawler for GitHub repositories with:
-- Repository metadata extraction
-- Batch processing capabilities
-- CSV/JSON export functionality
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Web Frontend  │    │   Backend API   │    │   LLM Service   │
+│   (React + TS)  │◄──►│   (FastAPI)     │◄──►│   (Gemini)      │
+│                 │    │                 │    │                 │
+│ • URL Input     │    │ • Job Queue     │    │ • Site Analysis │
+│ • Config UI     │    │ • Progress      │    │ • System Prompts│
+│ • Results View  │    │ • File Storage  │    │ • Optimization  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
+- Python 3.8+
+- Node.js 16+
+- Firebase CLI
+- Google API Key for Gemini
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/Antonio-Parada/website-documentation-scraper.git
+   cd website-documentation-scraper
+   ```
+
+2. **Set up environment:**
+   ```bash
+   # Set your Google API key
+   export GOOGLE_APIKEY="your-gemini-api-key"
+   
+   # Install backend dependencies
+   cd backend
+   pip install -r requirements.txt
+   cd ..
+   
+   # Install frontend dependencies
+   cd frontend
+   npm install
+   cd ..
+   ```
+
+3. **Run locally:**
+   ```bash
+   # Terminal 1: Start backend
+   cd backend
+   python main.py
+   
+   # Terminal 2: Start frontend
+   cd frontend
+   npm start
+   ```
+
+4. **Deploy to Firebase:**
+   ```bash
+   # Windows
+   ./deploy.ps1
+   
+   # Linux/Mac
+   ./deploy.sh
+   ```
+
+## 🔧 Configuration
+
+### Firebase Setup
+1. Create a Firebase project
+2. Enable Hosting and Functions
+3. Update `.firebaserc` with your project ID
+4. Configure custom domain in Firebase Console
+
+### Environment Variables
 ```bash
-pip install scrapegraphai beautifulsoup4 requests flask flask-cors
+GOOGLE_APIKEY=your-gemini-api-key
+FIREBASE_PROJECT_ID=your-project-id
 ```
 
-### Set up Gemini API Key
-```bash
-# On Windows (PowerShell)
-$env:GOOGLE_APIKEY = "your_gemini_api_key_here"
+### Custom Domain Setup
+1. Go to Firebase Console → Hosting
+2. Add custom domain: `scrape.mypp.site`
+3. Add CNAME record to your DNS:
+   - Name: `scrape`
+   - Type: `CNAME`
+   - Value: `your-project.web.app`
 
-# On macOS/Linux
-export GOOGLE_APIKEY="your_gemini_api_key_here"
-```
+## 📱 Web Interface
 
-### Basic Usage
+### Main Features
+- **URL Analysis**: Enter a URL and get AI-powered structure analysis
+- **Smart Configuration**: LLM-recommended settings with user overrides
+- **Progress Monitoring**: Real-time scraping progress with ETA
+- **Results Dashboard**: Browse generated files, view quality metrics
+- **Download Options**: ZIP archives, individual files, or bulk export
 
-#### 1. Command Line Interface
+### API Endpoints
+- `POST /api/v1/analysis/pre-analyze` - BeautifulSoup analysis
+- `POST /api/v1/analysis/llm-analyze` - Gemini-powered analysis
+- `POST /api/v1/scraping/jobs` - Start scraping job
+- `GET /api/v1/scraping/jobs/{id}` - Get job status
+- `GET /api/v1/results/{id}` - Download results
+
+## 💡 Usage Examples
+
+### Web Interface
+1. Open `https://scrape.mypp.site`
+2. Enter target URL
+3. Review AI recommendations
+4. Adjust parameters if needed
+5. Start scraping and monitor progress
+6. Download results when complete
+
+### API Usage
 ```python
-from website_doc_scraper import WebsiteDocumentationScraper
+import requests
 
-scraper = WebsiteDocumentationScraper(
-    base_url="https://example.com",
-    output_dir="docs",
-    max_depth=3,
-    delay=2.0,
-    max_pages=100
-)
+# Pre-analyze a website
+response = requests.post('https://scrape.mypp.site/api/v1/analysis/pre-analyze', 
+                        json={'url': 'https://docs.python.org'})
+analysis = response.json()
 
-summary = scraper.crawl_website()
-scraper.generate_index()
+# Start scraping job
+job_response = requests.post('https://scrape.mypp.site/api/v1/scraping/jobs',
+                           json={
+                               'url': 'https://docs.python.org',
+                               'max_depth': 3,
+                               'max_pages': 100,
+                               'llm_guided': True
+                           })
+job_id = job_response.json()['job_id']
+
+# Monitor progress
+status = requests.get(f'https://scrape.mypp.site/api/v1/scraping/jobs/{job_id}')
 ```
 
-#### 2. GUI Application
-```bash
-python scraper_gui.py
-```
+## 🧪 Legacy CLI Usage
 
-#### 3. Backend Server
-```bash
-python scraper_backend.py
-```
-Then open http://localhost:5000 in your browser.
-
-## ⚙️ Configuration Options
-
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `base_url` | Starting URL to crawl | Required |
-| `output_dir` | Directory for markdown files | "docs" |
-| `max_depth` | Maximum crawl depth | 3 |
-| `delay` | Delay between requests (seconds) | 2.0 |
-| `max_pages` | Maximum pages to process | 100 |
-
-## 📊 API Endpoints
-
-| Endpoint | Method | Description |
-|----------|---------|-------------|
-| `/api/jobs` | POST | Create new scraping job |
-| `/api/jobs/<id>/start` | POST | Start a job |
-| `/api/jobs/<id>/stop` | POST | Stop a job |
-| `/api/jobs/<id>/status` | GET | Get job status |
-| `/api/jobs/<id>/files` | GET | List generated files |
-| `/api/jobs/<id>/download` | GET | Download files as ZIP |
-
-## 🔧 Advanced Features
-
-### Smart State Management
-- Automatically saves progress every 10 pages
-- Resume interrupted crawls seamlessly
-- Handles network failures gracefully
-
-### Content Intelligence
-- Extracts main content while filtering navigation
-- Preserves code blocks and formatting
-- Generates meaningful filenames
-- Creates comprehensive index files
-
-### Cross-Platform Compatibility
-- Native file system integration
-- Platform-specific optimizations
-- Consistent behavior across operating systems
-
-## 📝 Example Use Cases
-
-### 1. Documentation Migration
-```python
-# Convert existing documentation site to markdown
-scraper = WebsiteDocumentationScraper(
-    base_url="https://old-docs.company.com",
-    output_dir="new_docs",
-    max_depth=5,
-    max_pages=500
-)
-```
-
-### 2. Knowledge Base Creation
-```python
-# Extract knowledge from support sites
-scraper = WebsiteDocumentationScraper(
-    base_url="https://support.example.com",
-    output_dir="kb",
-    max_depth=3,
-    max_pages=200
-)
-```
-
-### 3. API Documentation
-```python
-# Extract API documentation
-scraper = WebsiteDocumentationScraper(
-    base_url="https://api-docs.example.com",
-    output_dir="api_docs",
-    max_depth=4,
-    max_pages=100
-)
-```
-
-## 🛠️ File Structure
-
-```
-docs/
-├── index.md                 # Main index file
-├── page1.md                 # Individual page content
-├── page2.md                 # Individual page content
-├── ...
-└── scraper_state.json       # State persistence file
-```
-
-## 📋 Generated Markdown Format
-
-Each markdown file includes:
-- Page title and description
-- Source URL and generation timestamp
-- Clean, structured content
-- Proper markdown formatting
-- Relevant tags and metadata
-
-## 🔍 Error Handling
-
-The system handles various error conditions:
-- Network timeouts and failures
-- Invalid URLs and redirects
-- Content extraction errors
-- File system permissions
-- API rate limits
-
-## 🚦 Best Practices
-
-1. **Respectful Crawling**: Use appropriate delays (1-2 seconds minimum)
-2. **Depth Limits**: Start with max_depth=2-3 for testing
-3. **Page Limits**: Set reasonable max_pages to avoid overwhelming sites
-4. **State Management**: Always enable resume functionality
-5. **Error Monitoring**: Check logs for failed URLs
-
-## 🧪 Testing
-
-The project includes comprehensive test scripts:
+The original CLI interface is still available for power users:
 
 ```bash
-# Basic functionality test
-python test_scraper.py
+# Basic scraping
+python website_doc_scraper.py https://docs.python.org --depth 3 --pages 100
 
-# GitHub repository scraping test
-python test_github_scraper.py
+# LLM-guided configuration
+python experimental/llm_guided_cli.py https://docs.python.org
 
-# HTTPBin API documentation test
-python test_httpbin.py
-
-# Batch testing multiple sites
-python test_multiple_sites.py
-
-# GitHub crawler testing
-python test_batch_crawler.py
+# Smart scraper with AI optimization
+python experimental/smart_scraper.py https://docs.python.org --non-interactive
 ```
 
-**Note:** Test outputs are saved to separate directories and are not tracked in version control. This allows you to test the scraper without cluttering the repository.
+## 📊 Performance Metrics
 
-## 📈 Performance
+The system provides comprehensive performance analysis:
+- **Efficiency Score**: Success rate of page processing
+- **Completion Rate**: Percentage of discovered pages processed
+- **Speed Metrics**: Pages per second, total duration
+- **Quality Assessment**: Content quality grading (A-F)
+- **Recommendations**: Suggestions for optimization
 
-- **Speed**: ~0.5-2 pages per second (depending on delay)
-- **Memory**: Efficient with minimal memory usage
-- **Storage**: Compressed markdown files (~10-50KB per page)
-- **Scalability**: Handles 1000+ pages efficiently
+## 🔒 Security  Best Practices
 
-## 🔒 Security
+- **Rate Limiting**: Respectful crawling with configurable delays
+- **User-Agent**: Proper identification in requests
+- **Robots.txt**: Respects site crawling policies
+- **Error Handling**: Graceful failure management
+- **API Authentication**: Secure API key management
 
-- No sensitive data stored in files
-- API keys handled securely
-- Rate limiting to prevent abuse
-- Input validation for all parameters
+## 🚦 Development Workflow
+
+### Branch Structure
+```
+main                    # Stable releases
+├── feature/web-app     # Web application development
+├── feature/api-backend # Backend API development
+└── feature/frontend    # React frontend development
+```
+
+### Deployment Pipeline
+1. **Development**: Local testing with emulators
+2. **Staging**: Firebase hosting preview
+3. **Production**: Custom domain deployment
+
+## 📈 Roadmap
+
+### Phase 1: Backend Foundation ✅
+- FastAPI application structure
+- Pydantic data models
+- Firebase Functions integration
+
+### Phase 2: Frontend Development 🔄
+- React TypeScript application
+- Material-UI components
+- Real-time progress updates
+
+### Phase 3: Advanced Features 📋
+- User authentication
+- Job history and analytics
+- Batch processing
+- Export format options
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Test thoroughly
 5. Submit a pull request
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🙏 Acknowledgments
-
-- Google Gemini 2.5 Flash for AI-powered content extraction
-- ScrapeGraph AI for the underlying scraping framework
-- BeautifulSoup for HTML parsing
-- Flask for the web interface
+- **Google Gemini**: AI-powered website analysis
+- **ScrapeGraphAI**: Core scraping capabilities
+- **Firebase**: Hosting and serverless functions
+- **React**: Modern web interface
+- **FastAPI**: High-performance backend API
 
 ---
 
-**Ready to convert any website into structured documentation!** 🚀
+**🌐 Live Demo**: [scrape.mypp.site](https://scrape.mypp.site)  
+**📚 API Docs**: [scrape.mypp.site/api/docs](https://scrape.mypp.site/api/docs)  
+**🐛 Issues**: [GitHub Issues](https://github.com/Antonio-Parada/website-documentation-scraper/issues)
+

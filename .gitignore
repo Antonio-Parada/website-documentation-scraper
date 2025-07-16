@@ -57,16 +57,29 @@ config.py
 secrets.json
 api_keys.txt
 
-# Generated documentation output
-docs/
-test_docs/
-scrapegraph_docs/
-output/
-scraped_*/
-doc-vault/
-*.md
-!README.md
-!PROJECT_SUMMARY.md
+# Firebase
+.firebase/
+
+# Frontend build
+frontend/build/
+frontend/node_modules/
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# Backend
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+
+# Dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Scraper state files
 scraper_state.json
