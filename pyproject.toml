@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "website-documentation-scraper"
+version = "0.1.0"
+description = "Experimental tool to scrape websites and convert them to markdown using LLMs"
+authors = [
+  { name="Your Name", email="your.email@example.com" },
+]
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "scrapegraphai>=1.71.0",
+    "google-generativeai>=0.8.5",
+    "langchain-google-genai>=2.1.8",
+    "beautifulsoup4>=4.12.3",
+    "requests>=2.32.3",
+    "flask>=3.1.0",
+    "flask-cors>=5.0.0",
+    "pandas>=2.2.0",
+    "playwright>=1.40.0",
+]
+
+[project.scripts]
+website-doc-scraper = "web_doc_scraper.scraper:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

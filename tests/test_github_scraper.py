@@ -14,7 +14,7 @@ from pathlib import Path
 # Add current directory to Python path
 sys.path.append(str(Path(__file__).parent))
 
-from website_doc_scraper import WebsiteDocumentationScraper
+from web_doc_scraper.scraper import WebsiteDocumentationScraper
 
 def main():
     """Test the scraper on your GitHub repository"""
