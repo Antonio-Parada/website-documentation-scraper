@@ -2,7 +2,12 @@
 Simple test of the website documentation scraper
 """
 
-from website_doc_scraper import WebsiteDocumentationScraper
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
+
+from web_doc_scraper.scraper import WebsiteDocumentationScraper
 
 def test_scraper():
     print("🧪 Testing Website Documentation Scraper")

@@ -15,7 +15,7 @@ from datetime import datetime
 # Add current directory to Python path
 sys.path.append(str(Path(__file__).parent))
 
-from website_doc_scraper import WebsiteDocumentationScraper
+from web_doc_scraper.scraper import WebsiteDocumentationScraper
 
 def test_site(site_config):
     """Test scraping a single site"""

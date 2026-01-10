@@ -568,7 +568,7 @@ def main():
         
         print(f"\n🚀 Ready to scrape with optimized configuration!")
         print(f"💡 You can now run the scraper with these parameters:")
-        print(f"   python website_doc_scraper.py {args.url} --depth {config['max_depth']} --pages {config['max_pages']} --delay {config['delay']} --output {config['output_dir']}")
+        print(f"   python run_scraper.py {args.url} --depth {config['max_depth']} --pages {config['max_pages']} --delay {config['delay']} --output {config['output_dir']}")
         
     except KeyboardInterrupt:
         print("\n\n⏹️  Configuration interrupted by user")

@@ -26,8 +26,7 @@ import requests
 from bs4 import BeautifulSoup
 from scrapegraphai.graphs import SmartScraperGraph
 
-# Set the Gemini API key (set this as an environment variable)
-# os.environ["GOOGLE_APIKEY"] = "your_gemini_api_key_here"
+from .config import SCRAPER_CONFIG
 
 class WebsiteDocumentationScraper:
     """Complete website documentation scraper with markdown generation"""
@@ -63,15 +62,7 @@ class WebsiteDocumentationScraper:
         self.state_file = self.output_dir / "scraper_state.json"
         
         # Gemini configuration
-        self.gemini_config = {
-            "llm": {
-                "api_key": os.environ["GOOGLE_APIKEY"],
-                "model": "google_genai/gemini-2.5-flash",
-                "temperature": 0.1,
-            },
-            "verbose": False,
-            "headless": True,
-        }
+        self.gemini_config = SCRAPER_CONFIG
         
         # File naming and organization
         self.file_counter = 0
@@ -112,6 +103,17 @@ class WebsiteDocumentationScraper:
             print(f"📁 Loaded state: {len(self.visited_urls)} visited, {len(self.pending_urls)} pending")
             return True
             
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"⚠️  Failed to load state (corrupt file): {e}")
+            print("⚠️  Backing up corrupt state and starting fresh.")
+            if self.state_file.exists():
+                backup_path = self.state_file.with_suffix(f".bak.{int(time.time())}")
+                try:
+                    self.state_file.rename(backup_path)
+                    print(f"   Backed up to {backup_path}")
+                except OSError:
+                    pass
+            return False
         except Exception as e:
             print(f"⚠️  Failed to load state: {e}")
             return False
@@ -227,10 +229,11 @@ class WebsiteDocumentationScraper:
         """
         
         try:
+            # Use a copy of config to prevent state leakage
             graph = SmartScraperGraph(
                 prompt=prompt,
                 source=url,
-                config=self.gemini_config
+                config=self.gemini_config.copy()
             )
             
             result = graph.run()
