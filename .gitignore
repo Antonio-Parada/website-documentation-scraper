@@ -104,3 +104,4 @@ coverage.xml
 *.temp
 temp/
 tmp/
+output/

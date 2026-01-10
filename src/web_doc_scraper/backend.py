@@ -20,7 +20,7 @@ from flask_cors import CORS
 import uuid
 
 # Import our scraper
-from website_doc_scraper import WebsiteDocumentationScraper
+from .scraper import WebsiteDocumentationScraper
 
 # Ensure API key is set
 if "GOOGLE_APIKEY" not in os.environ:
